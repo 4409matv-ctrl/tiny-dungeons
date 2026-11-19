@@ -2,14 +2,21 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a1410">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Крошечные Подземелья — пошаговый турнир D&D-фигурок, каждый удар решает бросок d20.">
 <title>Крошечные Подземелья — Турнир Фигурок</title>
 <style>
 :root{ --ink:#161b26; --gold:#ffd166; }
-*{ box-sizing:border-box; margin:0; padding:0; user-select:none; -webkit-tap-highlight-color:transparent; }
-html,body{ height:100%; background:#1a1410; overflow:hidden; font-family:'Segoe UI',system-ui,sans-serif; }
-#wrap{ position:fixed; inset:0; display:grid; place-items:center; }
-#stage{ position:relative; width:1280px; height:720px; transform-origin:center center;
+*{ box-sizing:border-box; margin:0; padding:0; user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; background:#1a1410; overflow:hidden; font-family:'Segoe UI',system-ui,sans-serif;
+  touch-action:none; overscroll-behavior:none; -webkit-text-size-adjust:100%; }
+#wrap{ position:fixed; inset:0; overflow:hidden; touch-action:none; }
+#stage{ position:absolute; left:50%; top:50%; width:1280px; height:720px; transform-origin:50% 50%;
+  transform:translate(-50%,-50%) scale(1);
   border-radius:22px; overflow:hidden; box-shadow:0 24px 70px rgba(0,0,0,.6); background:#ffd166; }
 #cv{ position:absolute; inset:0; display:block; }
 #gl{ position:absolute; inset:0; display:block; pointer-events:none; }
@@ -106,6 +113,48 @@ h1{ font-family:'Comic Sans MS',cursive,sans-serif; font-size:40px; line-height:
 #bigText.on{ opacity:1; transform:scale(1) rotate(-2deg); }
 #flash{ position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
 
+/* ---------- смартфоны ---------- */
+#fsBtn{ position:absolute; right:8px; bottom:8px; z-index:40; width:40px; height:40px; border-radius:10px;
+  border:3px solid #0f0c09; background:rgba(12,10,8,.66); color:#ffd166; font-size:18px; font-weight:900;
+  display:none; place-items:center; cursor:pointer; }
+#loadBadge{ position:absolute; left:50%; bottom:8px; transform:translateX(-50%); z-index:41;
+  background:rgba(12,10,8,.8); color:#ffe9b8; border:3px solid #2a2320; border-radius:11px;
+  padding:5px 14px; font-size:12px; font-weight:700; }
+#rotate{ position:fixed; inset:0; z-index:100; background:#140f0b; display:none;
+  flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center; padding:28px; }
+#rotate.show{ display:flex; }
+#rotate .icon{ font-size:64px; line-height:1; animation:rot 2.4s ease-in-out infinite; }
+#rotate .t{ color:#ffd166; font-family:'Comic Sans MS',cursive,sans-serif; font-size:22px; }
+#rotate .s{ color:#c9b896; font-size:13px; max-width:300px; line-height:1.5; }
+#rotate .btn{ margin-top:10px; font-size:16px; padding:10px 22px; }
+@keyframes rot{ 0%,45%{ transform:rotate(0) } 70%,100%{ transform:rotate(-90deg) } }
+
+html.touch #fsBtn{ display:grid; }
+html.touch #stage{ border-radius:0; box-shadow:none; }
+html.touch .ab .key{ display:none; }
+html.touch #log{ width:392px; font-size:14px; line-height:1.5; }
+html.touch #portraits{ transform:scale(1.4); transform-origin:bottom center; margin-bottom:26px; }
+html.touch .port .pn{ font-size:11px; bottom:-17px; }
+html.touch .ab{ width:204px; height:108px; }
+html.touch .ab .nm{ font-size:15.5px; top:31px; left:10px; right:10px; }
+html.touch .ab .cost{ font-size:12px; right:9px; bottom:4px; }
+html.touch .ab .num{ font-size:18px; right:9px; top:3px; }
+html.touch .ab.super{ width:222px; height:114px; }
+html.touch .ab.super .nm{ top:34px; font-size:15.5px; }
+html.touch #energyWrap{ width:700px; gap:11px; }
+html.touch #energyBar{ height:21px; }
+html.touch #energyTxt{ font-size:17px; width:46px; }
+html.touch #cards{ grid-template-columns:repeat(3,1fr); gap:12px; }
+html.touch .card .mini{ height:96px; }
+html.touch .card .cname{ font-size:18px; }
+html.touch .card .crole{ font-size:11px; }
+html.touch .card .cstats{ font-size:12px; }
+html.touch .card .cabs{ font-size:11px; max-height:44px; overflow:hidden; }
+html.touch h1{ font-size:34px; }
+html.touch .sub{ font-size:14px; }
+html.touch .btn{ font-size:22px; padding:13px 40px; }
+html.touch #toast{ font-size:17px; }
+
 </style>
 </head>
 <body>
@@ -136,6 +185,8 @@ h1{ font-family:'Comic Sans MS',cursive,sans-serif; font-size:40px; line-height:
   </div>
   <div id="bigText"></div>
   <div id="flash"></div>
+  <button id="fsBtn" title="На весь экран">⛶</button>
+  <div id="loadBadge" class="hidden">Загрузка 3D-фигурок…</div>
 
   <div id="resultScreen" class="screen hidden">
     <div class="panel">
@@ -149,6 +200,13 @@ h1{ font-family:'Comic Sans MS',cursive,sans-serif; font-size:40px; line-height:
   </div>
 </div></div>
 
+<div id="rotate">
+  <div class="icon">📱</div>
+  <div class="t">Поверни телефон</div>
+  <div class="s">Игра рассчитана на горизонтальный экран: так видно всю арену и кнопки способностей.</div>
+  <button class="btn alt" id="rotPlay">Играть как есть</button>
+</div>
+
 <script src="assets/arena3d.js"></script>
 <script>
 /* ================= база ================= */
@@ -160,7 +218,7 @@ const d20=()=>1+Math.floor(Math.random()*20);
 
 const cv=document.getElementById('cv');
 let ctx=cv.getContext('2d');
-const DPR=Math.min(window.devicePixelRatio||1,2);
+const DPR=Math.min(window.devicePixelRatio||1, (matchMedia('(pointer: coarse)').matches||/[?&]touch=1/.test(location.search))?1.5:2);
 cv.width=W*DPR; cv.height=H*DPR;
 cv.style.width=W+'px'; cv.style.height=H+'px';
 
@@ -175,20 +233,60 @@ glCv.style.width=W+'px'; glCv.style.height=H+'px';
 const A3D={ on:false, ready:false };
 function initArena3D(){
   if(!window.Arena3D) return;
+  const conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  if(conn && conn.saveData && !/[?&]hd=1/.test(location.search)){
+    console.log('[arena3d] включён режим экономии трафика — остаёмся на 2D');
+    return;
+  }
+  const badge=document.getElementById('loadBadge');
+  const slowLoad=setTimeout(()=>{ if(!A3D.ready && badge) badge.classList.remove('hidden'); }, 1500);
   window.Arena3D.init(glCv).then(ok=>{
+    clearTimeout(slowLoad);
+    if(badge) badge.classList.add('hidden');
     A3D.ready=!!ok; A3D.on=!!ok;
     if(ok){
       if(S.screen==='battle') window.Arena3D.setup(S);
       console.log('[arena3d] модели загружены');
     }
-  }).catch(e=>console.warn('[arena3d]', e && e.message));
+  }).catch(e=>{ clearTimeout(slowLoad); if(badge) badge.classList.add('hidden'); console.warn('[arena3d]', e && e.message); });
 }
 
+/* ================= мобильная обвязка ================= */
+const IS_TOUCH = matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0 || /[?&]touch=1/.test(location.search);
+if(IS_TOUCH) document.documentElement.classList.add('touch');
+
+const stageEl=document.getElementById('stage');
+const rotateEl=document.getElementById('rotate');
+const loadBadge=document.getElementById('loadBadge');
+let rotDismissed=false;
+
+function updateRotate(){
+  const portrait=innerHeight>innerWidth*1.04;
+  rotateEl.classList.toggle('show', IS_TOUCH && portrait && !rotDismissed);
+}
 function fitStage(){
   const s=Math.min(innerWidth/W, innerHeight/H);
-  document.getElementById('stage').style.transform='scale('+s+')';
+  stageEl.style.transform='translate(-50%,-50%) scale('+s+')';
+  updateRotate();
 }
-addEventListener('resize',fitStage); fitStage();
+document.getElementById('rotPlay').addEventListener('click',()=>{ rotDismissed=true; updateRotate(); });
+addEventListener('resize',fitStage);
+addEventListener('orientationchange',()=>setTimeout(fitStage,120));
+if(window.visualViewport) visualViewport.addEventListener('resize',fitStage);
+fitStage();
+
+function goFullscreen(){
+  const el=document.documentElement;
+  const req=el.requestFullscreen||el.webkitRequestFullscreen;
+  if(!req) return;
+  Promise.resolve(req.call(el,{navigationUI:'hide'})).then(()=>{
+    if(screen.orientation&&screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
+  }).catch(()=>{});
+  setTimeout(fitStage,350);
+}
+document.getElementById('fsBtn').addEventListener('click',ev=>{ ev.stopPropagation(); goFullscreen(); });
+document.addEventListener('contextmenu',ev=>ev.preventDefault());
+document.addEventListener('dblclick',ev=>ev.preventDefault());
 
 /* подмена контекста для мини-портретов на карточках */
 function withCtx(c,fn){ const old=ctx; ctx=c; fn(); ctx=old; }
@@ -716,11 +814,24 @@ function updateHud(){
   }
 }
 /* ================= отрисовка: фон ================= */
+let backdropCache=null;
 function drawBackdrop(){
+  if(!backdropCache){
+    backdropCache=document.createElement('canvas');
+    backdropCache.width=cv.width; backdropCache.height=cv.height;
+    const c=backdropCache.getContext('2d');
+    const prev=ctx; ctx=c;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    paintBackdropStatic();
+    ctx=prev;
+  }
+  ctx.drawImage(backdropCache,0,0,W,H);
+}
+function paintBackdropStatic(){
   const g=ctx.createLinearGradient(0,0,0,H);
   g.addColorStop(0,'#ffd84d'); g.addColorStop(.55,'#ffb43a'); g.addColorStop(1,'#e8882a');
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  ctx.save(); ctx.translate(W*.5,H*.4); ctx.rotate(S.t*.04);
+  ctx.save(); ctx.translate(W*.5,H*.4);
   for(let i=0;i<20;i++){
     const a=i*TAU/20;
     ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,1600,a,a+TAU/40); ctx.closePath();
@@ -1191,8 +1302,8 @@ addEventListener('keydown',ev=>{
 });
 
 /* ================= запуск ================= */
-D.startBtn.addEventListener('click',()=>{ if(S.chosen.length!==3) return; ensureAudio(); startBattle(); });
-D.againBtn.addEventListener('click',()=>{ ensureAudio(); startBattle(); });
+D.startBtn.addEventListener('click',()=>{ if(S.chosen.length!==3) return; ensureAudio(); if(IS_TOUCH && !document.fullscreenElement) goFullscreen(); startBattle(); });
+D.againBtn.addEventListener('click',()=>{ ensureAudio(); if(IS_TOUCH && !document.fullscreenElement) goFullscreen(); startBattle(); });
 D.menuBtn.addEventListener('click',showSelect);
 
 buildCards(); updateGoldLine(); refreshStart();

@@ -213,8 +213,10 @@ function playAttack(fig) {
 export async function init(canvas) {
   if (ready || failed) return ready;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const CAPTURE = /[?&]capture=1/.test(location.search);
+    const COARSE = matchMedia('(pointer: coarse)').matches;
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !COARSE, preserveDrawingBuffer: CAPTURE, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, COARSE ? 1.5 : 2));
     renderer.setSize(W, H, false);
     renderer.setClearAlpha(0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
