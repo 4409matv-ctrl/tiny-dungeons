@@ -2,9 +2,21 @@
 
 Мини-игра в духе Teeny Titans, но в антураже D&D: собираешь команду из трёх фигурок и дерёшься на арене, а каждый удар решает бросок d20.
 
-## Как запустить
+## Играть онлайн
 
-Двойной щелчок по `index.html`. Всё, никаких установок и интернета.
+**https://4409matv-ctrl.github.io/tiny-dungeons/**
+
+## Как запустить локально
+
+Двойной щелчок по `index.html` — но тогда 3D-модели не подгрузятся (браузер не даёт читать `.glb` с `file://`), игра откатится на 2D-графику. Для 3D нужен любой локальный сервер:
+
+```
+python -m http.server 8080
+```
+
+и открыть `http://127.0.0.1:8080/`.
+
+Сборка Windows `.exe` — в папке `desktop/` (`npm install`, затем `npm run dist`).
 
 ## Как играть
 
@@ -52,11 +64,18 @@ d20 + модификатор атаки героя  >=  AC врага   →  п�
 ## Файлы
 
 ```
-index.html      вся игра, один файл (~40 КБ)
-GDD.md          дизайн-документ
-assets/sprites  сюда кладутся PNG, если захочешь заменить код-графику
-assets/sfx      звуки
-assets/music    музыка
-assets/fonts    шрифты
-refs            референсы
+index.html          вся игра, один файл (~54 КБ)
+assets/arena3d.js   собранный 3D-слой (Three.js), грузит модели
+assets/models       GLB/GLTF фигурки (CC0, см. CREDITS.md)
+src3d/arena3d.js    исходник 3D-слоя (esbuild -> assets/arena3d.js)
+desktop/            Electron-обёртка для сборки .exe
+GDD.md              дизайн-документ
+refs                референсы
+```
+
+Сборка 3D-слоя после правок `src3d/arena3d.js`:
+
+```
+cd desktop
+node -e "const esb=require('esbuild'),p=require('path');esb.build({entryPoints:['../src3d/arena3d.js'],bundle:true,format:'iife',globalName:'Arena3D',minify:true,target:'chrome110',outfile:'../assets/arena3d.js',nodePaths:[p.join(process.cwd(),'node_modules')]})"
 ```
