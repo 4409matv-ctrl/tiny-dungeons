@@ -1,0 +1,8 @@
+node_modules/
+desktop/node_modules/
+desktop/renderer/
+desktop/dist/
+desktop/log-*.txt
+*.log
+.DS_Store
+Thumbs.db

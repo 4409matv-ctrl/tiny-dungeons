@@ -1,0 +1,45 @@
+{
+  "name": "tiny-dungeons",
+  "productName": "Tiny Dungeons",
+  "version": "0.1.0",
+  "description": "Крошечные Подземелья — турнир фигурок",
+  "main": "main.js",
+  "author": "Tiny Dungeons",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "copy": "node scripts/copy-game.js",
+    "dist": "node scripts/copy-game.js && electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.tinydungeons.game",
+    "productName": "Tiny Dungeons",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "renderer/**/*"
+    ],
+    "asar": false,
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "portable": {
+      "artifactName": "TinyDungeons.exe"
+    }
+  },
+  "devDependencies": {
+    "electron": "^45.3.3",
+    "electron-builder": "^26.0.12"
+  }
+}
